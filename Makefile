@@ -1,14 +1,17 @@
-#	$OpenBSD: Makefile,v 1.1 2015/07/16 20:44:21 tedu Exp $
+doas : parse.o doas.o
+		cc -o doas parse.o doas.o
+		
+y.tab.c : parse.y
+		yacc -d parse.y
+	
+parse.c : y.tab.c
+		mv y.tab.c parse.c
 
-SRCS=	parse.y doas.c
+parse.o : parse.c
+		cc -O2 -pipe -I/. -Wall -c parse.c
+		
+doas.o : doas.c
+		cc -O2 -pipe -I/. -Wall -c doas.c
 
-PROG=	doas
-MAN=	doas.1 doas.conf.5
-
-BINOWN= root
-BINMODE=4555
-
-CFLAGS+= -I${.CURDIR}
-COPTS+=	-Wall
-
-.include <bsd.prog.mk>
+clean :
+	rm -f y.tab.* doas *.o parse.c
